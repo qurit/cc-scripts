@@ -72,7 +72,7 @@ for fileOptTpl in itertools.product(*fileOpts.values()):
        folderPrefix = f"recon_{fOpt['reconAlgorithm']}_{scanDuration}_z{cOpt['zFilter']}_b{cOpt['beta']}"
        folderName = makeNewFolderWithPrefix(folderPrefix)
 
-       jobName = f"{fOpt['reconAlgorithm']}_z{cOpt['zFilter']}_b{cOpt['beta']}"
+       jobName = f"{fOpt['reconAlgorithm']}_{scanDuration}m_z{cOpt['zFilter']}_b{cOpt['beta']}"
        seriesName = jobName
 
        print(folderName)
