@@ -18,7 +18,7 @@ fileOpts = {
         "/project/6053072/jtang1/jt_unlist/lymph-piq-withBkg/10m/"
     ],
     "attenDataDir": ["/project/6053072/phantoms/Lymphoma_quantification/LYMPH_PIQ/WithBkg/CTAC/"],
-    "reconAlgorithm": ["OSEM"]
+    "reconAlgorithm": ["BSREM"]
 }
 
 userConfig = {
@@ -28,7 +28,7 @@ userConfig = {
 
 slurmOpts = {
     "account": "def-curibe",
-    "time": "5:00:00",
+    "time": "18:00:00",
     "ntasks": 1,
     "cpus-per-task": 2,
     "mem-per-cpu": "4G",
