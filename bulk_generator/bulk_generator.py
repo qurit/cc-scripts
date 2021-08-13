@@ -54,67 +54,67 @@ containerFolderPrefix = f"{datetime.datetime.now().strftime('%Y%m%d')}"
 containerFolderName = getNewFolderName(containerFolderPrefix)
 print(containerFolderName)
 
-bashLines = ["#!/bin/bash"]
-counter = 0
-for fileOptTpl in itertools.product(*fileOpts.values()):
-    for configTpl in itertools.product(*userConfig.values()):
-        counter += 1
-        fOpt = tupleToDict(fileOptTpl, fileOpts)
-        cOpt = tupleToDict(configTpl, userConfig)
-
-        scanDuration = fOpt["petDataDir"].split('/')[-2]
-        # print(scanDuration)
-
-        # folderPattern = f"recon_{fOpt['reconAlgorithm']}_{scanDuration}_z{cOpt['zFilter']}_b{cOpt['beta']}_{datetime.datetime.now().strftime('%Y%m%d')}"
-        folderPattern = f"recon_{fOpt['reconAlgorithm']}_nIt{cOpt['nIterations']}_{datetime.datetime.now().strftime('%Y%m%d')}"
-
-        numExistingFolders = len(glob.glob(f"{folderPattern}*"))
-
-        folderName = f"{folderPattern}_{numExistingFolders}"
-        jobName = f"{fOpt['reconAlgorithm']}_nIt{cOpt['nIterations']}"
-        seriesName = jobName
-
-        print(folderName)
-        os.mkdir(folderName)
-
-        mFileLines = [f'disp("Hello from {folderName}/runDuetto.m")', "workDir = pwd;"]
-        mFileLines.extend([f"{k} = '{v}';" for k, v in fOpt.items()])
-        
-        mFileLines.append("userConfig = ptbUserConfig(reconAlgorithm, petDataDir, attenDataDir, workDir);")
-        for k, v in cOpt.items():
-            if type(v) == str:
-                mFileLines.append(f"userConfig.{k} = '{v}';")
-            elif type(v) == int:
-                mFileLines.append(f"userConfig.{k} = {v};")
-            else:
-                raise TypeError("userConfig options must be of type str or int")
-
-        mFileLines.append(f"userConfig.dicomSeriesNumber = {700+counter};")
-        mFileLines.append(f"userConfig.dicomSeriesDesc = '{seriesName}';")
-        mFileLines.append(f"reconImage = ptbRunRecon(userConfig);")
-
-        with open(os.path.join(folderName, "runDuetto.m"), "w", newline='\n') as f:
-            f.write("\n".join(mFileLines))
-        
-        slFileLines = ["#!/bin/bash -l", f"#SBATCH --job-name={jobName}"]
-        slFileLines.extend([f"#SBATCH --{k}={v}" for k, v in slurmOpts.items()])
-        slFileLines.extend([
-            "module load nixpkgs/16.09",
-            "module load matlab/2018a",
-            'matlab -nodisplay -r "runDuetto"'
-        ])
-
-        with open(os.path.join(folderName, "recon.sl"), "w", newline='\n') as f:
-            f.write("\n".join(slFileLines))
-
-        bashLines.extend([
-            f"cd {folderName}",
-            "sbatch recon.sl",
-            "cd ..",
-            "sleep 3" #seconds; sleeping is recommended by Compute Canada to maintain responiveness of Slurm for all users.
-        ])
-
-bashScriptPrefix = f"submit_jobs_{datetime.datetime.now().strftime('%Y%m%d')}_"
-numExistingScripts = len(glob.glob(f"{bashScriptPrefix}*.sh"))
-with open(f"{bashScriptPrefix}{numExistingScripts}.sh", 'w', newline='\n') as f:
-    f.write("\n".join(bashLines))
+#bashLines = ["#!/bin/bash"]
+#counter = 0
+#for fileOptTpl in itertools.product(*fileOpts.values()):
+#    for configTpl in itertools.product(*userConfig.values()):
+#        counter += 1
+#        fOpt = tupleToDict(fileOptTpl, fileOpts)
+#        cOpt = tupleToDict(configTpl, userConfig)
+#
+#        scanDuration = fOpt["petDataDir"].split('/')[-2]
+#        # print(scanDuration)
+#
+#        # folderPattern = f"recon_{fOpt['reconAlgorithm']}_{scanDuration}_z{cOpt['zFilter']}_b{cOpt['beta']}_{datetime.datetime.now().strftime('%Y%m%d')}"
+#        folderPattern = f"recon_{fOpt['reconAlgorithm']}_nIt{cOpt['nIterations']}_{datetime.datetime.now().strftime('%Y%m%d')}"
+#
+#        numExistingFolders = len(glob.glob(f"{folderPattern}*"))
+#
+#        folderName = f"{folderPattern}_{numExistingFolders}"
+#        jobName = f"{fOpt['reconAlgorithm']}_nIt{cOpt['nIterations']}"
+#        seriesName = jobName
+#
+#        print(folderName)
+#        os.mkdir(folderName)
+#
+#        mFileLines = [f'disp("Hello from {folderName}/runDuetto.m")', "workDir = pwd;"]
+#        mFileLines.extend([f"{k} = '{v}';" for k, v in fOpt.items()])
+#        
+#        mFileLines.append("userConfig = ptbUserConfig(reconAlgorithm, petDataDir, attenDataDir, workDir);")
+#        for k, v in cOpt.items():
+#            if type(v) == str:
+#                mFileLines.append(f"userConfig.{k} = '{v}';")
+#            elif type(v) == int:
+#                mFileLines.append(f"userConfig.{k} = {v};")
+#            else:
+#                raise TypeError("userConfig options must be of type str or int")
+#
+#        mFileLines.append(f"userConfig.dicomSeriesNumber = {700+counter};")
+#        mFileLines.append(f"userConfig.dicomSeriesDesc = '{seriesName}';")
+#        mFileLines.append(f"reconImage = ptbRunRecon(userConfig);")
+#
+#        with open(os.path.join(folderName, "runDuetto.m"), "w", newline='\n') as f:
+#            f.write("\n".join(mFileLines))
+#        
+#        slFileLines = ["#!/bin/bash -l", f"#SBATCH --job-name={jobName}"]
+#        slFileLines.extend([f"#SBATCH --{k}={v}" for k, v in slurmOpts.items()])
+#        slFileLines.extend([
+#            "module load nixpkgs/16.09",
+#            "module load matlab/2018a",
+#            'matlab -nodisplay -r "runDuetto"'
+#        ])
+#
+#        with open(os.path.join(folderName, "recon.sl"), "w", newline='\n') as f:
+#            f.write("\n".join(slFileLines))
+#
+#        bashLines.extend([
+#            f"cd {folderName}",
+#            "sbatch recon.sl",
+#            "cd ..",
+#            "sleep 3" #seconds; sleeping is recommended by Compute Canada to maintain responiveness of Slurm for all users.
+#        ])
+#
+#bashScriptPrefix = f"submit_jobs_{datetime.datetime.now().strftime('%Y%m%d')}_"
+#numExistingScripts = len(glob.glob(f"{bashScriptPrefix}*.sh"))
+#with open(f"{bashScriptPrefix}{numExistingScripts}.sh", 'w', newline='\n') as f:
+#    f.write("\n".join(bashLines))
